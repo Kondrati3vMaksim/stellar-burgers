@@ -3,7 +3,8 @@ export {
   addIngredient,
   removeIngredient,
   setBun,
-  clearConstructor
+  clearConstructor,
+  moveIngredient
 } from './reducer';
 
 export { getConstructorItems } from './selectors';

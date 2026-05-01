@@ -10,7 +10,7 @@ import {
 import { burgerConstructorReducer } from './burger-constructor';
 import { feedReducer } from './feed/reducer';
 import { orderReducer } from './order';
-import { profileReducer } from './profile-orders';
+import { profileOrdersReducer } from './profile-orders';
 
 const rootReducer = combineReducers({
   ingredients: ingredientsReducer,
@@ -18,7 +18,7 @@ const rootReducer = combineReducers({
   user: userReducer,
   feed: feedReducer,
   order: orderReducer,
-  profileOrders: profileReducer
+  profileOrders: profileOrdersReducer
 });
 const store = configureStore({
   reducer: rootReducer,

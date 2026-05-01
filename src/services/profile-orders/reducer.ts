@@ -1,41 +1,38 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice } from '@reduxjs/toolkit';
 import { TOrder } from '@utils-types';
+import { getProfileOrders } from './actions';
 
-type profileOrder = {
+type TProfileOrdersState = {
   orders: TOrder[];
   isLoading: boolean;
   error: string | null;
 };
 
-const initialState: profileOrder = {
+const initialState: TProfileOrdersState = {
   orders: [],
   isLoading: false,
   error: null
 };
 
-export const profileSlice = createSlice({
-  name: 'profile',
+const profileOrdersSlice = createSlice({
+  name: 'profileOrders',
   initialState,
-  reducers: {
-    profileOrdersRequest(state) {
-      state.isLoading = true;
-      state.error = null;
-    },
-    profileOrdersSuccess(state, action: PayloadAction<TOrder[]>) {
-      state.isLoading = false;
-      state.orders = action.payload;
-    },
-    profileOrdersError(state, action: PayloadAction<string>) {
-      state.isLoading = false;
-      state.error = action.payload;
-    }
+  reducers: {},
+  extraReducers: (builder) => {
+    builder
+      .addCase(getProfileOrders.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(getProfileOrders.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.orders = action.payload;
+      })
+      .addCase(getProfileOrders.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.error.message || 'Ошибка';
+      });
   }
 });
 
-export const {
-  profileOrdersRequest,
-  profileOrdersSuccess,
-  profileOrdersError
-} = profileSlice.actions;
-
-export const profileReducer = profileSlice.reducer;
+export const profileOrdersReducer = profileOrdersSlice.reducer;

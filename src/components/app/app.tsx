@@ -83,6 +83,14 @@ const App = () => {
             </ProtectedRoute>
           }
         />
+        <Route
+          path='/profile/orders/:number'
+          element={
+            <ProtectedRoute onlyForAuth>
+              <OrderInfo />
+            </ProtectedRoute>
+          }
+        />
         {/* защищённые */}
         <Route
           path='/profile'

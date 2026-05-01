@@ -2,17 +2,16 @@ import { FC, useMemo } from 'react';
 import { TConstructorIngredient } from '@utils-types';
 import { BurgerConstructorUI } from '@ui';
 import { useDispatch, useSelector } from '../../services/store';
-import {
-  clearConstructor,
-  getConstructorItems
-} from '../../services/burger-constructor';
+import { getConstructorItems } from '../../services/burger-constructor';
 import {
   getOrderRequest,
   getOrderModalData,
   createOrder,
   closeOrder
 } from '../../services/order';
-import { getProfileOrder } from '../../services/profile-orders';
+import { getProfileOrders } from '../../services/profile-orders';
+import { useNavigate } from 'react-router-dom';
+import { getUser } from '../../services/user';
 
 export const BurgerConstructor: FC = () => {
   /** TODO: взять переменные constructorItems, orderRequest и orderModalData из стора */
@@ -24,16 +23,21 @@ export const BurgerConstructor: FC = () => {
 
   const orderModalData = useSelector(getOrderModalData);
 
+  const user = useSelector(getUser);
+  const navigate = useNavigate();
   const onOrderClick = () => {
     if (!constructorItems.bun || orderRequest) return;
+    if (!user) {
+      navigate('/login');
+      return;
+    }
     const ids = [
       constructorItems.bun._id,
       ...constructorItems.ingredients.map((i) => i._id),
       constructorItems.bun._id
     ];
     dispatch(createOrder(ids));
-    dispatch(getProfileOrder());
-    dispatch(clearConstructor());
+    dispatch(getProfileOrders());
   };
 
   const closeOrderModal = () => {

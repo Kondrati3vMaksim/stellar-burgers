@@ -1,6 +1,6 @@
 import { TOrder } from '@utils-types';
-import { TFeedsResponse } from '../../utils/burger-api';
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { getFeeds } from './actions';
+import { createSlice } from '@reduxjs/toolkit';
 
 type TFeedState = {
   orders: TOrder[];
@@ -21,23 +21,24 @@ const initialState: TFeedState = {
 const feedOrderState = createSlice({
   name: 'feed',
   initialState,
-  reducers: {
-    feedRequest(state) {
-      state.isLoading = true;
-      state.error = null;
-    },
-    feedSuccess(state, action: PayloadAction<TFeedsResponse>) {
-      state.isLoading = false;
-      state.orders = action.payload.orders;
-      state.total = action.payload.total;
-      state.totalToday = action.payload.totalToday;
-    },
-    feedError(state, action: PayloadAction<string>) {
-      state.isLoading = false;
-      state.error = action.payload;
-    }
+  reducers: {},
+  extraReducers: (builder) => {
+    builder
+      .addCase(getFeeds.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(getFeeds.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.orders = action.payload.orders;
+        state.total = action.payload.total;
+        state.totalToday = action.payload.totalToday;
+      })
+      .addCase(getFeeds.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.error.message || 'Ошибка';
+      });
   }
 });
 
-export const { feedRequest, feedSuccess, feedError } = feedOrderState.actions;
 export const feedReducer = feedOrderState.reducer;

@@ -1,6 +1,6 @@
 import { RootState } from '../store';
 
-export const getProfileOrders = (state: RootState) =>
+export const getProfileOrdersList = (state: RootState) =>
   state.profileOrders.orders;
 export const getProfileIsLoading = (state: RootState) =>
   state.profileOrders.isLoading;

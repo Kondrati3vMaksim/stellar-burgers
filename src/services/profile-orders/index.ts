@@ -1,9 +1,7 @@
+export { getProfileOrders } from './actions';
+export { profileOrdersReducer } from './reducer';
 export {
-  getProfileOrders,
+  getProfileOrdersList,
   getProfileIsLoading,
   getProfileError
 } from './selectors';
-
-export { profileReducer } from './reducer';
-
-export { getProfileOrder } from './actions';

@@ -26,10 +26,20 @@ const burgerConstructor = createSlice({
     clearConstructor(state) {
       state.bun = null;
       state.ingredients = [];
+    },
+    moveIngredient(state, action: PayloadAction<{ from: number; to: number }>) {
+      const { from, to } = action.payload;
+      const [moved] = state.ingredients.splice(from, 1);
+      state.ingredients.splice(to, 0, moved);
     }
   }
 });
 
-export const { addIngredient, removeIngredient, setBun, clearConstructor } =
-  burgerConstructor.actions;
+export const {
+  addIngredient,
+  removeIngredient,
+  setBun,
+  clearConstructor,
+  moveIngredient
+} = burgerConstructor.actions;
 export const burgerConstructorReducer = burgerConstructor.reducer;

@@ -1,79 +1,46 @@
-import { authRequest, authSuccess, authError, authChecked } from './reducer';
+import { createAsyncThunk } from '@reduxjs/toolkit';
 import {
   getUserApi,
   loginUserApi,
-  TLoginData,
-  TRegisterData,
   registerUserApi,
+  logoutApi,
   updateUserApi
 } from '../../utils/burger-api';
-import { AppDispatch } from '../store';
+import { TLoginData, TRegisterData } from '../../utils/burger-api';
 import { setCookie, deleteCookie } from '../../utils/cookie';
-import { logoutApi } from '../../utils/burger-api';
-import { logout } from './reducer';
 
-export const checkUserAuth = () => (dispatch: AppDispatch) => {
-  dispatch(authRequest());
-  getUserApi()
-    .then((data) => {
-      dispatch(authSuccess(data.user));
-    })
-    .catch((error) => {
-      dispatch(authError(error.message));
-    })
-    .finally(() => {
-      dispatch(authChecked());
-    });
-};
+export const checkUserAuth = createAsyncThunk('user/check', getUserApi);
 
-export const loginUser = (data: TLoginData) => (dispatch: AppDispatch) => {
-  dispatch(authRequest());
-  loginUserApi(data)
-    .then((res) => {
-      setCookie('accessToken', res.accessToken);
-      localStorage.setItem('refreshToken', res.refreshToken);
-      dispatch(authSuccess(res.user));
-    })
-    .catch((err) => {
-      dispatch(authError(err.message));
-    });
-};
+export const loginUser = createAsyncThunk(
+  'user/login',
+  async (data: TLoginData) => {
+    const res = await loginUserApi(data);
+    setCookie('accessToken', res.accessToken);
+    localStorage.setItem('refreshToken', res.refreshToken);
+    return res.user;
+  }
+);
 
-export const registerUser =
-  (data: TRegisterData) => (dispatch: AppDispatch) => {
-    dispatch(authRequest());
-    registerUserApi(data)
-      .then((res) => {
-        setCookie('accessToken', res.accessToken);
-        localStorage.setItem('refreshToken', res.refreshToken);
-        dispatch(authSuccess(res.user));
-      })
-      .catch((err) => {
-        dispatch(authError(err.message));
-      });
-  };
+export const registerUser = createAsyncThunk(
+  'user/register',
+  async (data: TRegisterData) => {
+    const res = await registerUserApi(data);
+    setCookie('accessToken', res.accessToken);
+    localStorage.setItem('refreshToken', res.refreshToken);
+    return res.user;
+  }
+);
 
-export const logoutUser = () => (dispatch: AppDispatch) => {
-  logoutApi()
-    .then(() => {
-      deleteCookie('accessToken');
-      localStorage.removeItem('refreshToken');
-      dispatch(logout());
-    })
-    .catch(() => {
-      deleteCookie('accessToken');
-      localStorage.removeItem('refreshToken');
-      dispatch(logout());
-    });
-};
+export const logoutUser = createAsyncThunk('user/logout', async () => {
+  await logoutApi();
+  deleteCookie('accessToken');
+  localStorage.removeItem('refreshToken');
+});
 
-export const updateUser =
-  (data: Partial<TRegisterData>) => (dispatch: AppDispatch) => {
-    updateUserApi(data)
-      .then((res) => {
-        dispatch(authSuccess(res.user));
-      })
-      .catch((err) => {
-        dispatch(authError(err.message));
-      });
-  };
+export const updateUser = createAsyncThunk(
+  'user/update',
+  async (data: Partial<TRegisterData>) => {
+    const res = await updateUserApi(data);
+    return res.user;
+  }
+);

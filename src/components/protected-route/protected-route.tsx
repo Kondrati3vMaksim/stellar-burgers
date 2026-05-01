@@ -5,6 +5,7 @@ import { ReactNode, FC } from 'react';
 import { useSelector } from '../../services/store';
 import { getUser, getIsAuthChecked } from '../../services/user';
 import { Preloader } from '@ui';
+import { useLocation } from 'react-router-dom';
 
 export const ProtectedRoute: FC<ProtectedRouteProps> = ({
   children,
@@ -12,14 +13,16 @@ export const ProtectedRoute: FC<ProtectedRouteProps> = ({
 }) => {
   const isAuth = useSelector(getUser);
   const isAuthChecked = useSelector(getIsAuthChecked);
+  const location = useLocation();
+  if (isAuthChecked === false) {
+    return <Preloader />;
+  }
   if (onlyForAuth && !isAuth) {
-    return <Navigate to='/login' />;
+    return <Navigate to='/login' state={{ from: location }} />;
   }
   if (!onlyForAuth && isAuth) {
     return <Navigate to='/' />;
   }
-  if (isAuthChecked === false) {
-    return <Preloader />;
-  }
+
   return children;
 };
