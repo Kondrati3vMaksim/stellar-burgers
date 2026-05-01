@@ -2,14 +2,16 @@ import { FC, useMemo } from 'react';
 import { TConstructorIngredient } from '@utils-types';
 import { BurgerConstructorUI } from '@ui';
 import { useDispatch, useSelector } from '../../services/store';
-import { getConstructorItems } from '../../services/burger-constructor';
+import {
+  clearConstructor,
+  getConstructorItems
+} from '../../services/burger-constructor';
 import {
   getOrderRequest,
   getOrderModalData,
   createOrder,
   closeOrder
 } from '../../services/order';
-import { getProfileOrders } from '../../services/profile-orders';
 import { useNavigate } from 'react-router-dom';
 import { getUser } from '../../services/user';
 
@@ -36,8 +38,11 @@ export const BurgerConstructor: FC = () => {
       ...constructorItems.ingredients.map((i) => i._id),
       constructorItems.bun._id
     ];
-    dispatch(createOrder(ids));
-    dispatch(getProfileOrders());
+    dispatch(createOrder(ids))
+      .unwrap()
+      .then(() => {
+        dispatch(clearConstructor());
+      });
   };
 
   const closeOrderModal = () => {

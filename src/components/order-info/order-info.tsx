@@ -1,22 +1,39 @@
-import { FC, useMemo } from 'react';
+import { FC, useMemo, useEffect, useState } from 'react';
 import { Preloader } from '../ui/preloader';
 import { OrderInfoUI } from '../ui/order-info';
-import { TIngredient } from '@utils-types';
+import { TIngredient, TOrder } from '@utils-types';
 import { useParams } from 'react-router-dom';
 import { getOrders } from '../../services//feed';
 import { getProfileOrdersList } from '../../services/profile-orders';
 import { useSelector } from '../../services/store';
 import { getItems } from '../../services/ingredients';
+import { getOrderByNumberApi } from '../../utils/burger-api';
 export const OrderInfo: FC = () => {
   /** TODO: взять переменные orderData и ingredients из стора */
   const { number } = useParams();
   const feedOrders = useSelector(getOrders);
   const profileOrders = useSelector(getProfileOrdersList);
-  const orderData = [...feedOrders, ...profileOrders].find(
-    (order) => order.number === Number(number)
-  );
   const ingredients: TIngredient[] = useSelector(getItems);
 
+  const [loadedOrder, setLoadedOrder] = useState<TOrder | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const orderData =
+    [...feedOrders, ...profileOrders].find(
+      (order) => order.number === Number(number)
+    ) || loadedOrder;
+
+  useEffect(() => {
+    if (!orderData) {
+      setIsLoading(true);
+      getOrderByNumberApi(Number(number))
+        .then((res) => {
+          setLoadedOrder(res.orders[0]);
+        })
+        .catch(() => {})
+        .finally(() => setIsLoading(false));
+    }
+  }, [number, orderData]);
   /* Готовим данные для отображения */
   const orderInfo = useMemo(() => {
     if (!orderData || !ingredients.length) return null;

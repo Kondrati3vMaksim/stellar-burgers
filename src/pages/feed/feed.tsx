@@ -7,9 +7,11 @@ import { getFeeds } from '../../services/feed/actions';
 import { getOrders } from '../../services/feed';
 
 export const Feed: FC = () => {
-  /** TODO: взять переменную из стора */
   const dispatch = useDispatch();
   const orders = useSelector(getOrders);
+
+  /** TODO: взять переменную из стора */
+
   useEffect(() => {
     dispatch(getFeeds());
   }, [dispatch]);
