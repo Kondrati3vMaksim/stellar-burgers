@@ -1,39 +1,38 @@
-import { FC, useMemo, useEffect, useState } from 'react';
+import { FC, useMemo, useEffect } from 'react';
 import { Preloader } from '../ui/preloader';
 import { OrderInfoUI } from '../ui/order-info';
-import { TIngredient, TOrder } from '@utils-types';
+import { TIngredient } from '@utils-types';
 import { useParams } from 'react-router-dom';
-import { getOrders } from '../../services//feed';
+import {
+  getCurrentOrder,
+  getOrderByNumber,
+  getOrders,
+  getIsLoading
+} from '../../services//feed';
 import { getProfileOrdersList } from '../../services/profile-orders';
-import { useSelector } from '../../services/store';
+import { useDispatch, useSelector } from '../../services/store';
 import { getItems } from '../../services/ingredients';
-import { getOrderByNumberApi } from '../../utils/burger-api';
+
 export const OrderInfo: FC = () => {
   /** TODO: взять переменные orderData и ingredients из стора */
   const { number } = useParams();
   const feedOrders = useSelector(getOrders);
   const profileOrders = useSelector(getProfileOrdersList);
   const ingredients: TIngredient[] = useSelector(getItems);
-
-  const [loadedOrder, setLoadedOrder] = useState<TOrder | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const dispatch = useDispatch();
+  const currentOrder = useSelector(getCurrentOrder);
+  const isLoading = useSelector(getIsLoading);
 
   const orderData =
     [...feedOrders, ...profileOrders].find(
       (order) => order.number === Number(number)
-    ) || loadedOrder;
+    ) || currentOrder;
 
   useEffect(() => {
-    if (!orderData) {
-      setIsLoading(true);
-      getOrderByNumberApi(Number(number))
-        .then((res) => {
-          setLoadedOrder(res.orders[0]);
-        })
-        .catch(() => {})
-        .finally(() => setIsLoading(false));
+    if (!orderData && !currentOrder) {
+      dispatch(getOrderByNumber(Number(number)));
     }
-  }, [number, orderData]);
+  }, [number, orderData, currentOrder, dispatch]);
   /* Готовим данные для отображения */
   const orderInfo = useMemo(() => {
     if (!orderData || !ingredients.length) return null;
@@ -75,6 +74,13 @@ export const OrderInfo: FC = () => {
       total
     };
   }, [orderData, ingredients]);
+
+  if (isLoading) {
+    return <Preloader />;
+  }
+  if (!orderData) {
+    return <p style={{ textAlign: 'center' }}>Заказ не найден</p>;
+  }
 
   if (!orderInfo) {
     return <Preloader />;

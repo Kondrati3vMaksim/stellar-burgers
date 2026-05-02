@@ -1,5 +1,5 @@
 import { TOrder } from '@utils-types';
-import { getFeeds } from './actions';
+import { getFeeds, getOrderByNumber } from './actions';
 import { createSlice } from '@reduxjs/toolkit';
 
 type TFeedState = {
@@ -8,6 +8,7 @@ type TFeedState = {
   totalToday: number | null;
   isLoading: boolean;
   error: string | null;
+  currentOrder: TOrder | null;
 };
 
 const initialState: TFeedState = {
@@ -15,7 +16,8 @@ const initialState: TFeedState = {
   total: null,
   totalToday: null,
   isLoading: false,
-  error: null
+  error: null,
+  currentOrder: null
 };
 
 const feedOrderState = createSlice({
@@ -35,6 +37,17 @@ const feedOrderState = createSlice({
         state.totalToday = action.payload.totalToday;
       })
       .addCase(getFeeds.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.error.message || 'Ошибка';
+      })
+      .addCase(getOrderByNumber.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(getOrderByNumber.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.currentOrder = action.payload;
+      })
+      .addCase(getOrderByNumber.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.error.message || 'Ошибка';
       });

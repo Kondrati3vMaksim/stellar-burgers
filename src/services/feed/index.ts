@@ -1,3 +1,9 @@
-export { getOrders, getTotal, getTotalToday, getIsLoading } from './selectors';
-export { getFeeds } from './actions';
+export {
+  getOrders,
+  getTotal,
+  getTotalToday,
+  getIsLoading,
+  getCurrentOrder
+} from './selectors';
+export { getFeeds, getOrderByNumber } from './actions';
 export { feedReducer } from './reducer';
