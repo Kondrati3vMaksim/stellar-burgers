@@ -1,22 +1,38 @@
-import { FC, useMemo } from 'react';
+import { FC, useMemo, useEffect } from 'react';
 import { Preloader } from '../ui/preloader';
 import { OrderInfoUI } from '../ui/order-info';
 import { TIngredient } from '@utils-types';
+import { useParams } from 'react-router-dom';
+import {
+  getCurrentOrder,
+  getOrderByNumber,
+  getOrders,
+  getIsLoading
+} from '../../services//feed';
+import { getProfileOrdersList } from '../../services/profile-orders';
+import { useDispatch, useSelector } from '../../services/store';
+import { getItems } from '../../services/ingredients';
 
 export const OrderInfo: FC = () => {
   /** TODO: взять переменные orderData и ingredients из стора */
-  const orderData = {
-    createdAt: '',
-    ingredients: [],
-    _id: '',
-    status: '',
-    name: '',
-    updatedAt: 'string',
-    number: 0
-  };
+  const { number } = useParams();
+  const feedOrders = useSelector(getOrders);
+  const profileOrders = useSelector(getProfileOrdersList);
+  const ingredients: TIngredient[] = useSelector(getItems);
+  const dispatch = useDispatch();
+  const currentOrder = useSelector(getCurrentOrder);
+  const isLoading = useSelector(getIsLoading);
 
-  const ingredients: TIngredient[] = [];
+  const orderData =
+    [...feedOrders, ...profileOrders].find(
+      (order) => order.number === Number(number)
+    ) || currentOrder;
 
+  useEffect(() => {
+    if (!orderData && !currentOrder) {
+      dispatch(getOrderByNumber(Number(number)));
+    }
+  }, [number, orderData, currentOrder, dispatch]);
   /* Готовим данные для отображения */
   const orderInfo = useMemo(() => {
     if (!orderData || !ingredients.length) return null;
@@ -58,6 +74,13 @@ export const OrderInfo: FC = () => {
       total
     };
   }, [orderData, ingredients]);
+
+  if (isLoading) {
+    return <Preloader />;
+  }
+  if (!orderData) {
+    return <p style={{ textAlign: 'center' }}>Заказ не найден</p>;
+  }
 
   if (!orderInfo) {
     return <Preloader />;
