@@ -63,7 +63,7 @@ test.describe('Конструктор бургера', () => {
     await expect(page.locator('[data-testid="modal"]')).toBeVisible();
 
     // Клик по оверлею через data-testid
-    await page.locator('[data-testid="modal-overlay"]').dispatchEvent('click');
+    await page.mouse.click(10, 10);
     await expect(page.locator('[data-testid="modal"]')).not.toBeVisible();
   });
 
