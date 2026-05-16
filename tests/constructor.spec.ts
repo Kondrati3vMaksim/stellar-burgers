@@ -72,7 +72,27 @@ test.describe('Конструктор бургера', () => {
       document.cookie = 'accessToken=mock-access-token';
     });
 
+    await page.unroute('**/api/orders**');
     // Мок запроса пользователя
+    await page.route('**/api/orders**', (route) => {
+      // Достаём заголовки запроса, которые отправило приложение
+      const headers = route.request().headers();
+      // Проверяем, что в заголовке authorization лежит наш фейковый токен
+      if (headers.authorization) {
+        // Токен правильный — возвращаем успешный ответ
+        route.fulfill({
+          status: 200,
+          body: JSON.stringify({ success: true, order: { number: 12345 } })
+        });
+      } else {
+        // Токен неправильный или отсутствует — возвращаем 401
+        route.fulfill({
+          status: 401,
+          body: JSON.stringify({ success: false, message: 'Unauthorized' })
+        });
+      }
+    });
+
     await page.route('**/api/auth/user**', (route) => {
       route.fulfill({
         status: 200,
@@ -83,21 +103,9 @@ test.describe('Конструктор бургера', () => {
       });
     });
 
-    // Мок создания заказа
-    await page.route('**/api/orders**', (route) => {
-      route.fulfill({
-        status: 200,
-        body: JSON.stringify({
-          success: true,
-          order: { number: 12345 }
-        })
-      });
-    });
-
     await page.reload();
     await page.waitForLoadState('networkidle');
 
-    const addButtons = page.locator('[data-testid^="add-button-"]');
     await page
       .locator('[data-testid^="ingredient-"]')
       .first()
