@@ -46,7 +46,6 @@ test.describe('Конструктор бургера', () => {
     const ingredientLink = page.locator('a[href*="/ingredients/"]').first();
     await ingredientLink.click();
 
-    // toBeVisible само ждёт появления элемента
     await expect(page.locator('[data-testid="modal"]')).toBeVisible();
     await expect(page.locator('[data-testid="modal"] h3').nth(1)).toContainText(
       'Краторная булка N-200i'
@@ -62,7 +61,6 @@ test.describe('Конструктор бургера', () => {
 
     await expect(page.locator('[data-testid="modal"]')).toBeVisible();
 
-    // Клик по оверлею через data-testid
     await page.mouse.click(10, 10);
     await expect(page.locator('[data-testid="modal"]')).not.toBeVisible();
   });
